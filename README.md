@@ -1,44 +1,72 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Guidelines
+You will have to submit this task with git (you can use Github or Bitbucket).
+After you are finishing make sure the code is pushed and send an email/skype with a link.
 
-## Available Scripts
+The code should be runnable on Chrome (don't worry about the rest), NPM start or something simple for run it.
 
-In the project directory, you can run:
+Stack: Rxjs (or similar libs even Observable proposal), ES6/ES7 or Typescript
 
-### `npm start`
+The UI is just for demonstration there are no “point” for UX or design.
+We are looking for native Reactive solution, with Reactive paradigm, not Imperative or functional Paradigm
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+BAD:
+```typescript
+obs.subscribe((n)=>{
+  /// all the logic
+});
+```
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+GOOD:
+```typescript
+obs
+  .logic()
+  .doSomething()
+  ...
+  .subscribe();
+```
 
-### `npm test`
+## You have this model
+```typescript
+interface Asset {
+	id: number
+	assetName: string; // "USD", Samsung Electronics Co Ltd : "SSNLF"
+	price: number; // asset current price relative to USD
+	lastUpdate: number; // unix timestamp
+	type: "Currency" | "Stock"; // asset type Currency (e.g. USD, EUR...) or Stock (Samsung, Google)
+}
+```
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Mock
 
-### `npm run build`
+Creates 400 random assets, 200 currencies and 200 stocks (just the types is itersting, you don't need real assets) id 1-400
+Create a stream from those 400 assets that fires 1 updates per secound for each asset:
+* price must be changed each update by -1 to 1 and with the current timestamp, the rest will stay the same
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+you can find the mock at mock.js
+It's exports a mock, rxjs observable with the required stream
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+This is not a starter or boilerplate it's just for confirm that the mock isn't brooken
+You still can boot your project how ever you want
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### see the mock running
+npm/yarn install
+npm test
 
-### `npm run eject`
+You should see console log with the object on the steam
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Create the following app using this stream:
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. Create a buy asset form
+2. User fills the asset name or id in the input
+3. When user click on buy, the user should get notification with assetName (with its id and current(!) price)
+4. When a user starts typing he will get the list of suggestions below an input (each suggestion should include assetName, id and current price)
+5. When user click on suggestion it will fill the value of input (assetName and id - price should not be included in the input)
+6. When asset id is typed in the input you must show the asset price next to the input (keep it updated according to the changes of the price for this asset)
+7. Advance behavior (Do it after 1-6 are done):
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+7.1. Suggest buy name and id
 
-## Learn More
+7.2. Suggest assets only after 2nd character typed
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+7.3. If character typed in a row (less then 100ms) between types, suggest assets when typing sequence is over.
