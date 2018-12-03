@@ -18,7 +18,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        this.inputEvent$ = Observable.fromEvent(this.inputSearch, 'input')
+        const inputEvent$ = Observable.fromEvent(this.inputSearch, 'input')
             .pluck('target', 'value')
             .filter(text => text.length > 1)
             .debounceTime(100)
@@ -32,25 +32,24 @@ class App extends Component {
         const clickSugg$ = Observable.fromEventPattern((handler) => {
             this.onClickSugg = handler
         })
-            .map(v => {
+            .do(v => {
                 this.setState(() => ({
                     input: v.id + ' ' + v.assetName,
                     currentAsset: v
                 }))
-                return v.id
             })
+            .map(v => v.id)
 
         const clickBuy$ = Observable.fromEventPattern((handler) => {
             this.onClickBuy = handler
         })
-            .map(v => v)
             .do(x => {
                 if (!this.state.currentAsset.id) return
                 const {id, assetName, price} = this.state.currentAsset
                 alert('You buy asset: ' + [assetName, id, price].join(' '))
             })
 
-        const merged$ = Observable.merge(this.inputEvent$, clickSugg$, clickBuy$)
+        const merged$ = Observable.merge(inputEvent$, clickSugg$, clickBuy$)
 
         const stream$ = merged$.switchMap(this.searchAssets)
         this.subscribtion = stream$.subscribe(data => {
@@ -94,13 +93,11 @@ class App extends Component {
                 }
                 return item.assetName.includes(search) || item.id.toString().includes(search)
             })
-            .take(20)
     }
 
     handleChangeInput(event) {
         const value = event.target.value
         this.setState(() => ({input: value}))
-        this.inputEvent$.do(value)
     }
 
     render() {
